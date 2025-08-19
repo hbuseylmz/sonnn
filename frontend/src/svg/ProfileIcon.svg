@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 30.64 34.31">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #fff;
+        fill-rule: evenodd;
+      }
+
+      .cls-3 {
+        clip-path: url(#clippath-1);
+      }
+
+      .cls-4 {
+        clip-path: url(#clippath);
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-1" width="30.64" height="34.31"/>
+    </clipPath>
+    <clipPath id="clippath-1">
+      <rect class="cls-1" y="12.54" width="30.64" height="10.84"/>
+    </clipPath>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <g id="Group_220" data-name="Group 220">
+        <g class="cls-4">
+          <g id="Group_219" data-name="Group 219">
+            <path id="Path_59" data-name="Path 59" class="cls-2" d="M20.83,5.47c0,3.02-2.45,5.47-5.47,5.47s-5.47-2.45-5.47-5.47S12.34,0,15.36,0c3.02,0,5.47,2.45,5.47,5.47h0"/>
+          </g>
+        </g>
+      </g>
+      <g id="Group_222" data-name="Group 222">
+        <g class="cls-3">
+          <g id="Group_221" data-name="Group 221">
+            <path id="Path_60" data-name="Path 60" class="cls-2" d="M26.21,23.43c0,6.01-4.87,10.89-10.89,10.89-6.01,0-10.89-4.87-10.88-10.89s4.87-10.89,10.89-10.89,10.89,4.87,10.89,10.89h0"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
