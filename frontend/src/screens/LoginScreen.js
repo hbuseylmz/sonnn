@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import colors from '../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { API_BASE_URL } from '../../auth';
@@ -60,7 +61,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <LinearGradient
-      colors={['#a8dadc', '#fcbf49']}
+      colors={[colors.secondary, colors.fourth]}
       style={styles.container}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -69,12 +70,7 @@ export default function LoginScreen({ navigation }) {
         style={styles.innerContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <Ionicons
-          name="sparkles-outline"
-          size={50}
-          color="#ffffffdd"
-          style={{ marginBottom: 12 }}
-        />
+        <Ionicons name="log-in-outline" size={48} color={colors.primary} style={{ marginBottom: 8 }} />
         <Text style={styles.title}>Hoşgeldin 👋</Text>
         <Text style={styles.subtitle}>Giriş yap ve keşfetmeye başla</Text>
 
@@ -121,10 +117,7 @@ export default function LoginScreen({ navigation }) {
       </KeyboardAvoidingView>
 
       <Modal visible={modalVisible} transparent animationType="fade">
-        <LinearGradient
-          colors={['#fcbf49cc', '#a8dadccc']}
-          style={styles.modalContainer}
-        >
+        <LinearGradient colors={[colors.secondary, colors.fourth]} style={styles.modalContainer}>
           <View style={styles.modalBox}>
             <Text style={styles.modalText}>🎉 Hoşgeldin {username}!</Text>
           </View>
@@ -145,15 +138,14 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   title: {
-    fontSize: 34,
-    color: '#fff',
+    fontSize: 30,
+    color: colors.white,
     fontWeight: 'bold',
     marginBottom: 8,
-    fontStyle: 'italic',
   },
   subtitle: {
     fontSize: 16,
-    color: '#fefae0',
+    color: '#e9ecef',
     marginBottom: 20,
     fontWeight: '500',
   },
@@ -170,7 +162,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    backgroundColor: '#ffffffee',
+    backgroundColor: colors.white,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 14,
@@ -179,7 +171,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   loginButton: {
-    backgroundColor: '#f77f00',
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 14,
@@ -189,7 +181,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   loginButtonText: {
-    color: '#fff',
+    color: colors.white,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -197,7 +189,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   registerButtonText: {
-    color: '#fff',
+    color: colors.white,
     fontSize: 14,
     textDecorationLine: 'underline',
   },
@@ -215,7 +207,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 20,
-    color: '#f77f00',
+    color: colors.primary,
     fontWeight: 'bold',
   },
 });

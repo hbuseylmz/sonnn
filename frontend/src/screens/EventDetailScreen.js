@@ -20,6 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import colors from '../theme/colors';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -261,10 +262,7 @@ export default function EventDetailScreen({ route }) {
           source={{ uri: event.image_url || event.image }}
           style={styles.image}
         />
-        <LinearGradient
-          colors={['transparent', 'rgba(255, 195, 140, 0.65)']}
-          style={styles.gradientOverlay}
-        />
+        <LinearGradient colors={['transparent', 'rgba(255,133,2,0.65)']} style={styles.gradientOverlay} />
         <View style={styles.overlayInfo}>
           {event.category && <Text style={styles.groupName}>{String(event.category)}</Text>}
           <View style={styles.locationRow}>
@@ -312,7 +310,7 @@ export default function EventDetailScreen({ route }) {
       )}
 
       {/* Katılımcı sayısı kutusu */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#6a82fb', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 5, alignSelf: 'center', marginBottom: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 5, alignSelf: 'center', marginBottom: 10 }}>
         <MaterialIcons name="groups" size={20} color="#fff" style={{ marginRight: 6 }} />
         <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>{participantCount} kişi</Text>
       </View>

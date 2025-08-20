@@ -19,6 +19,7 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import moment from 'moment';
 import 'moment/locale/tr';
 import BottomBar from '../components/BottomBar';
+import EventCard from '../components/EventCard';
 
 const colors = {
   primary: '#FF8502',
@@ -102,49 +103,31 @@ export default function EventsScreen({ navigation, route }) {
     }).start();
   }, [tab]);
 
-  const renderEventItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.eventCardModern}
-      activeOpacity={0.92}
-      onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
-    >
-      <View style={styles.eventImageWrapper}>
-        {item.image_url ? (
-          <Image source={{ uri: item.image_url }} style={styles.eventImageModern} />
-        ) : (
-          <View style={styles.eventImagePlaceholderModern}>
-            <MaterialCommunityIcons name="calendar-star" size={38} color="#ea4c89" />
-          </View>
-        )}
-      </View>
-      <View style={styles.eventContentModern}>
-        <Text style={styles.eventTitleModern} numberOfLines={1}>{item.title}</Text>
-        <View style={styles.metaRowModern}>
-          <Ionicons name="location-sharp" size={16} color="#6c757d" />
-          <Text style={styles.eventMetaModern}>{item.city} / {item.district}</Text>
-        </View>
-        <View style={styles.metaRowModern}>
-          <Ionicons name="calendar-sharp" size={16} color="#6c757d" />
-          <Text style={styles.eventMetaModern}>{moment(item.date).locale('tr').format('DD MMMM YYYY')} • {item.time}</Text>
-        </View>
-        
-        {item.category && (
-          <View style={styles.categoryBadgeModern}>
-            <Text style={styles.categoryTextModern}>{item.category}</Text>
-          </View>
-        )}
-        {item.description ? (
-          <Text style={styles.eventDescModern} numberOfLines={2}>{item.description}</Text>
-        ) : null}
-        <View style={styles.eventFooterModern}>
-          <View style={styles.participantBoxModern}>
-            <MaterialCommunityIcons name="groups" size={18} color="#a1c9ff" />
-            <Text style={styles.participantCountModern}>{item.participants ? item.participants.length : 1} kişi</Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderEventItem = ({ item }) => {
+    const raw = item.image_url;
+    const imageUri = raw
+      ? (raw.startsWith('http') || raw.startsWith('file:') || raw.startsWith('data:')
+          ? raw
+          : `${API_BASE_URL}/${raw.replace(/^\//, '')}`)
+      : 'https://placehold.co/400x200/23234B/fff?text=Etkinlik';
+    return (
+      <EventCard
+        title={item.title}
+        location={`${item.city || ''}${item.district ? ' / ' + item.district : ''}`}
+        date={`${moment(item.date).locale('tr').format('DD MMMM YYYY')} • ${item.time || ''}`}
+        imageUri={imageUri}
+        category={item.category}
+        participantsCount={item.participants?.length}
+        description={item.description}
+        saved={false}
+        joined={tab === 'joined'}
+        canJoin
+        onBookmarkPress={() => {}}
+        onJoinPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
+        onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
+      />
+    );
+  };
 
   const indicatorTranslate = tabAnim.interpolate({
     inputRange: [0, 1],

@@ -70,23 +70,13 @@ const CreateEventScreen = ({ navigation }) => {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [cities, setCities] = useState([]);
   const [districts, setDistricts] = useState([]);
+  const [districtsByCity, setDistrictsByCity] = useState({});
   const [clubs, setClubs] = useState([]);
   const [selectedClub, setSelectedClub] = useState(null);
   const [clubModalVisible, setClubModalVisible] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false);
 
-  // Şehir ve ilçe verilerini yükle
-  useEffect(() => {
-    const loadCities = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/locations`);
-        setCities(response.data.cities);
-      } catch (error) {
-        console.error('Şehirler yüklenirken hata:', error);
-      }
-    };
-    loadCities();
-  }, []);
+  // Şehir ve ilçe verilerini yükle (şehirler ve ilçe haritası)
 
   // Kullanıcının kurucusu olduğu kulüpleri yükle
   useEffect(() => {
@@ -108,7 +98,7 @@ const CreateEventScreen = ({ navigation }) => {
       try {
         const response = await axios.get(`${API_BASE_URL}/locations`);
         setCities(response.data.cities);
-        setDistrictsByCity(response.data.districtsByCity);
+        setDistrictsByCity(response.data.districtsByCity || {});
       } catch (error) {
         setCities([
           "Adana","Adıyaman","Afyonkarahisar","Ağrı","Aksaray","Amasya","Ankara","Antalya","Ardahan",
@@ -129,6 +119,26 @@ const CreateEventScreen = ({ navigation }) => {
     };
     loadCitiesAndDistricts();
   }, []);
+
+  // Şehir seçildiğinde ilçeleri güncelle ve ilçe seçimini sıfırla
+  useEffect(() => {
+    if (formData.city) {
+      const availableDistricts = districtsByCity[formData.city] || [];
+      setDistricts(availableDistricts);
+      if (!availableDistricts.includes(formData.district)) {
+        setFormData(prev => ({ ...prev, district: '' }));
+      }
+    } else {
+      setDistricts([]);
+      if (formData.district) {
+        setFormData(prev => ({ ...prev, district: '' }));
+      }
+    }
+  }, [formData.city, districtsByCity]);
+
+  const handleCityChange = (value) => {
+    handleInputChange('city', value);
+  };
 
   const handleInputChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -172,15 +182,40 @@ const CreateEventScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
+      // Upload image if it is a local file URI
+      let imageUrl = formData.image || '';
+      if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+        // Convert to base64 using fetch
+        const resp = await fetch(imageUrl);
+        const blob = await resp.blob();
+        const reader = new FileReader();
+        const base64Data = await new Promise((resolve, reject) => {
+          reader.onerror = reject;
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        const uploadRes = await axios.post(`${API_BASE_URL}/media/upload`, { dataUri: base64Data });
+        // Store relative path from backend
+        imageUrl = uploadRes.data?.url || uploadRes.data?.path || '';
+      }
+      const userId = await getCurrentUserId();
       const eventData = {
-        ...formData,
+        club_id: selectedClub?.id,
+        title: formData.title?.trim(),
+        description: formData.description?.trim() || '',
         date: formData.date.toISOString().split('T')[0],
         time: formData.time.toTimeString().slice(0, 5),
-        clubId: selectedClub?.id,
-        creatorId: await getCurrentUserId()
+        location_name: formData.place?.trim(),
+        location_map: null,
+        quota: formData.quota ? Number(formData.quota) : 1,
+        city: formData.city,
+        district: formData.district,
+        category: formData.category?.name,
+        image_url: imageUrl,
+        creator_id: userId,
       };
 
-      const response = await axios.post(`${API_BASE_URL}/events`, eventData);
+      await axios.post(`${API_BASE_URL}/events`, eventData);
       Alert.alert('Başarılı', 'Etkinlik başarıyla oluşturuldu!');
       navigation.goBack();
     } catch (error) {
@@ -352,7 +387,7 @@ const CreateEventScreen = ({ navigation }) => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.city}
-                onValueChange={(value) => handleInputChange('city', value)}
+                onValueChange={(value) => handleCityChange(value)}
               >
                 <Picker.Item label="Şehir seçin" value="" />
                 {cities.map(city => (

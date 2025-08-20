@@ -13,23 +13,23 @@ import CreateClubScreen from './screens/CreateClubScreen';
 // Components
 import BottomBar from './components/BottomBar';
 
-const MainScreen = () => {
+const MainScreen = ({ navigation }) => {
   const [activeScreen, setActiveScreen] = useState('Home');
 
   const renderScreen = () => {
     switch (activeScreen) {
       case 'Home':
-        return <HomeScreen />;
+        return <HomeScreen navigation={navigation} />;
       case 'Events':
-        return <EventsScreen showBottomBar={true} />;
+        return <EventsScreen showBottomBar={true} navigation={navigation} />;
       case 'Notifications':
-        return <NotificationsScreen />;
+        return <NotificationsScreen navigation={navigation} />;
       case 'Profile':
-        return <ProfileScreen />;
+        return <ProfileScreen navigation={navigation} />;
       case 'CreateIndividualEvent':
-        return <CreateIndividualEventScreen />;
+        return <CreateIndividualEventScreen navigation={navigation} />;
       case 'CreateClub':
-        return <CreateClubScreen />;
+        return <CreateClubScreen navigation={navigation} />;
       default:
         return <HomeScreen />;
     }

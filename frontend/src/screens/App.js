@@ -1,9 +1,10 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MenuProvider } from 'react-native-popup-menu';
+import { useFonts } from 'expo-font';
 
 // MainScreen
 import MainScreen from '../MainScreen';
@@ -29,12 +30,19 @@ SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
+  const [fontsLoaded] = useFonts({
+    'Nunito-Regular': require('../fonts/Nunito-Regular.ttf'),
+    'Nunito-Bold': require('../fonts/Nunito-Bold.ttf'),
+    'Nunito-Variable': require('../fonts/Nunito-VariableFont_wght.ttf'),
+    'Inter-Variable': require('../fonts/Inter-VariableFont_opsz,wght.ttf'),
+    'Fredoka-Variable': require('../fonts/Fredoka-VariableFont_wdth,wght.ttf'),
+  });
 
   useEffect(() => {
     async function prepare() {
       try {
         // Load any resources here (fonts, async storage, etc.)
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate loading
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate loading
       } catch (e) {
         console.warn(e);
       } finally {
@@ -46,12 +54,21 @@ export default function App() {
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if (appIsReady) {
+    // Set global default font when loaded
+    if (fontsLoaded) {
+      if (Text.defaultProps == null) Text.defaultProps = {};
+      if (Text.defaultProps.style == null) Text.defaultProps.style = {};
+      Text.defaultProps.style.fontFamily = 'Nunito-Regular';
+      if (TextInput.defaultProps == null) TextInput.defaultProps = {};
+      if (TextInput.defaultProps.style == null) TextInput.defaultProps.style = {};
+      TextInput.defaultProps.style.fontFamily = 'Nunito-Regular';
+    }
+    if (appIsReady && fontsLoaded) {
       await SplashScreen.hideAsync();
     }
-  }, [appIsReady]);
+  }, [appIsReady, fontsLoaded]);
 
-  if (!appIsReady) {
+  if (!appIsReady || !fontsLoaded) {
     return null; // Show nothing while loading
   }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, ScrollView, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
 import { API_BASE_URL, getCurrentUserId } from '../../auth';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 import HomeIcon from '../svg/HomeIcon.svg';
 import SearchIcon from '../svg/SearchIcon.svg';
@@ -14,10 +15,16 @@ import SvgEditProfile from '../svg/editprofile.svg';
 import SvgProfilePage1 from '../svg/profilepage1.svg';
 import SvgProfilePage2 from '../svg/BookmarkIcon.svg';
 import colors from '../theme/colors';
+import EventCard from '../components/EventCard';
+import ClubCard from '../components/ClubCard';
 
 export default function ProfileScreen({ navigation }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [savedEvents, setSavedEvents] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'saved'
+  const [myEvents, setMyEvents] = useState([]);
+  const [myClubs, setMyClubs] = useState([]);
 
   // Kullanıcı + etkinlik sayısı çek
   useEffect(() => {
@@ -33,9 +40,16 @@ export default function ProfileScreen({ navigation }) {
         const userRes = await axios.get(`${API_BASE_URL}/users/${userId}`);
         const userData = userRes.data;
 
-        // Kullanıcının etkinlik sayısını çek
-        const eventsRes = await axios.get(`${API_BASE_URL}/events?creatorId=${userId}`);
-        const eventCount = eventsRes.data.length;
+        // Kullanıcının etkinliklerini çek (client-side filtre)
+        const eventsRes = await axios.get(`${API_BASE_URL}/events`);
+        const myEvts = (eventsRes.data || []).filter(e => String(e.creator_id) === String(userId));
+        const eventCount = myEvts.length;
+        setMyEvents(myEvts);
+
+        // Kullanıcının kulüpleri
+        const clubsRes = await axios.get(`${API_BASE_URL}/clubs`);
+        const myCls = (clubsRes.data || []).filter(c => String(c.creator_id) === String(userId));
+        setMyClubs(myCls);
 
         setCurrentUser({
           username: userData.name, // ✅ backend "name" döndürüyor
@@ -53,6 +67,74 @@ export default function ProfileScreen({ navigation }) {
 
     fetchUserData();
   }, []);
+
+  // Load saved events when screen focused or when opening modal
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadSaved = async () => {
+        try {
+          const userId = await getCurrentUserId();
+          if (!userId) return;
+          const res = await axios.get(`${API_BASE_URL}/events/saved`, { params: { user_id: userId } });
+          setSavedEvents(res.data || []);
+        } catch (e) {
+          setSavedEvents([]);
+        }
+      };
+      loadSaved();
+    }, [])
+  );
+
+  // Refetch my clubs and events whenever profile gains focus (handles post-delete refresh)
+  useFocusEffect(
+    React.useCallback(() => {
+      const reloadMine = async () => {
+        try {
+          const userId = await getCurrentUserId();
+          if (!userId) return;
+          const [eventsRes, clubsRes] = await Promise.all([
+            axios.get(`${API_BASE_URL}/events`),
+            axios.get(`${API_BASE_URL}/clubs`),
+          ]);
+          setMyEvents((eventsRes.data || []).filter(e => String(e.creator_id) === String(userId)));
+          setMyClubs((clubsRes.data || []).filter(c => String(c.creator_id) === String(userId)));
+        } catch (e) {
+          // noop
+        }
+      };
+      reloadMine();
+    }, [])
+  );
+
+  const normalizeImage = (raw) => {
+    if (!raw) return 'https://placehold.co/400x200/23234B/fff?text=Etkinlik';
+    if (raw.startsWith('http') || raw.startsWith('file:') || raw.startsWith('data:')) return raw;
+    return `${API_BASE_URL}/${raw.replace(/^\//, '')}`;
+  };
+  const deleteClub = async (clubId) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/clubs/${clubId}`);
+      // Silinen kulübü state'ten kaldır
+      setMyClubs(prev => prev.filter(c => c.id !== clubId));
+    } catch (error) {
+      console.error("Kulüp silinemedi:", error);
+    }
+  };
+  
+
+  const toggleSave = async (eventId) => {
+    try {
+      const userId = await getCurrentUserId();
+      const isSaved = savedEvents.some(ev => ev.id === eventId);
+      if (isSaved) {
+        await axios.delete(`${API_BASE_URL}/events/${eventId}/save`, { data: { user_id: userId } });
+      } else {
+        await axios.post(`${API_BASE_URL}/events/${eventId}/save`, { user_id: userId });
+      }
+      const res = await axios.get(`${API_BASE_URL}/events/saved`, { params: { user_id: userId } });
+      setSavedEvents(res.data || []);
+    } catch {}
+  };
 
   if (loading) {
     return (
@@ -131,21 +213,81 @@ export default function ProfileScreen({ navigation }) {
 
         {/* Profile Tabs */}
         <View style={styles.profileTabs}>
-          <TouchableOpacity style={styles.profileTab}>
+          <TouchableOpacity style={[styles.profileTab, activeTab === 'overview' && styles.profileTabActive]} onPress={() => setActiveTab('overview')}>
             <SvgProfilePage1 width={24} height={24} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.profileTab}>
+          <TouchableOpacity style={[styles.profileTab, activeTab === 'saved' && styles.profileTabActive]} onPress={() => setActiveTab('saved')}>
             <SvgProfilePage2 width={24} height={24} />
           </TouchableOpacity>
         </View>
 
-        {/* Empty State */}
-        {currentUser.eventCount === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>Henüz etkinlik oluşturmadın!</Text>
+        {activeTab === 'saved' ? (
+          <View style={{ marginTop: 12 }}>
+            {savedEvents.length === 0 ? (
+              <View style={styles.emptyState}><Text style={styles.emptyText}>Henüz kaydettiğin etkinlik yok.</Text></View>
+            ) : (
+              savedEvents.map(ev => (
+                <EventCard
+                  key={ev.id}
+                  title={ev.title}
+                  location={`${ev.city || ''}${ev.district ? ' / ' + ev.district : ''}`}
+                  date={`${ev.date ? new Date(ev.date).toLocaleDateString('tr-TR') : ''} ${ev.time ? '• ' + String(ev.time).slice(0,5) : ''}`}
+                  imageUri={normalizeImage(ev.image_url || ev.image)}
+                  category={ev.category}
+                  participantsCount={ev.participants?.length}
+                  description={ev.description}
+                  saved={true}
+                  joined={false}
+                  canJoin
+                  onBookmarkPress={() => toggleSave(ev.id)}
+                  onJoinPress={() => navigation.navigate('EventDetail', { eventId: ev.id })}
+                  onPress={() => navigation.navigate('EventDetail', { eventId: ev.id })}
+                />
+              ))
+            )}
+          </View>
+        ) : (
+          <View style={{ marginTop: 12 }}>
+            <Text style={styles.sectionHeading}>Kulüplerim</Text>
+            {myClubs.length === 0 ? (
+              <View style={styles.emptyState}><Text style={styles.emptyText}>Henüz kulübün yok.</Text></View>
+            ) : (
+              myClubs.map(club => (
+                <ClubCard key={club.id} 
+                club={club} 
+                eventsCount={0} 
+                onPress={() => navigation.navigate('ClubDetail', { clubId: club.id })}
+                onDelete={() => deleteClub(club.id)} />
+              ))
+            )}
+            <Text style={styles.sectionHeading}>Etkinliklerim</Text>
+            {myEvents.length === 0 ? (
+              <View style={styles.emptyState}><Text style={styles.emptyText}>Henüz etkinlik oluşturmadın!</Text></View>
+            ) : (
+              myEvents.map(ev => (
+                <EventCard
+                  key={ev.id}
+                  title={ev.title}
+                  location={`${ev.city || ''}${ev.district ? ' / ' + ev.district : ''}`}
+                  date={`${ev.date ? new Date(ev.date).toLocaleDateString('tr-TR') : ''} ${ev.time ? '• ' + String(ev.time).slice(0,5) : ''}`}
+                  imageUri={normalizeImage(ev.image_url || ev.image)}
+                  category={ev.category}
+                  participantsCount={ev.participants?.length}
+                  description={ev.description}
+                  saved={false}
+                  joined={false}
+                  canJoin={false}
+                  onBookmarkPress={() => {}}
+                  onJoinPress={() => {}}
+                  onPress={() => navigation.navigate('EventDetail', { eventId: ev.id })}
+                />
+              ))
+            )}
           </View>
         )}
       </ScrollView>
+
+      {/* Saved feed shown inline */}
 
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomBarContainer}>
@@ -292,6 +434,18 @@ const styles = StyleSheet.create({
   },
   profileTab: {
     marginHorizontal: 30,
+  },
+  profileTabActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary,
+  },
+  sectionHeading: {
+    marginTop: 10,
+    marginBottom: 6,
+    marginHorizontal: 20,
+    color: colors.secondary,
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16,
   },
   emptyState: {
     flex: 1,

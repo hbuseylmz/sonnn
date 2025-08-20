@@ -20,10 +20,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import { API_BASE_URL, getCurrentUserId } from '../../auth';
 
-import BookmarkIcon from '../svg/BookmarkIcon.svg';
-import BookmarkFilledIcon from '../svg/BookmarkFilledIcon.svg';
 import BottomBar from '../components/BottomBar';
 import colors from '../theme/colors';
+import EventCard from '../components/EventCard';
+import ClubCard from '../components/ClubCard';
 
 // Filter options
 const FILTER_OPTIONS = [
@@ -350,163 +350,8 @@ export default function HomeScreen({ navigation }) {
     return true;
   });
 
-  if (!fontsLoaded || !appIsReady) {
-    return null;
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Akış yüklenemedi: {error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={onRefresh}>
-          <Text style={styles.retryButtonText}>Tekrar Dene</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchIconWrapper}>
-          <Ionicons name="search" size={14} color={colors.text} />
-        </View>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Etkinlik, kulüp, şehir ara..."
-          placeholderTextColor="#999"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <TouchableOpacity 
-          style={styles.filterIconWrapper}
-          onPress={() => setFilterModalVisible(true)}
-        >
-          <Ionicons name="filter" size={18} color={colors.text} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Category Buttons */}
-      <View style={styles.categoryContainer}>
-        {['Son Yüklenen', 'Yeni', 'Popüler', 'Hepsi'].map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            style={[
-              styles.categoryButton,
-              activeCategory === cat && styles.activeCategory
-            ]}
-            onPress={() => setActiveCategory(cat)}
-          >
-            <Text style={[
-              styles.categoryText,
-              activeCategory === cat && styles.activeCategoryText
-            ]}>
-              {cat}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.primary]}
-          />
-        }
-      >
-        {/* Events Section */}
-        {sortedEvents.map(event => (
-          <View key={event.id} style={styles.eventCard}>
-            <Image 
-              source={{ uri: event.image_url || "https://placehold.co/400x200/23234B/fff?text=Etkinlik" }} 
-              style={styles.eventImage} 
-            />
-            <View style={styles.eventOverlayTop}>
-              <View style={styles.eventHeaderLeft}>
-                <View style={styles.eventAvatar}>
-                  <Ionicons name="person" size={14} color={colors.white} />
-                </View>
-                <View>
-                  <Text style={styles.eventTitle}>{event.title}</Text>
-                  <Text style={styles.eventLocation}>
-                    {event.location?.city || '-'}
-                  </Text>
-                </View>
-              </View>
-              <TouchableOpacity 
-                style={styles.bookmarkBadgeLight}
-                onPress={() => toggleSave(event.id)}
-              >
-                {savedEventIds.has(event.id) ? (
-                  <BookmarkFilledIcon width={16} height={20} fill={colors.primary} />
-                ) : (
-                  <BookmarkIcon width={16} height={20} />
-                )}
-              </TouchableOpacity>
-            </View>
-            <View style={styles.eventOverlayBottom}>
-              <Text style={styles.eventDate}>
-                {event.date ? new Date(event.date).toLocaleString("tr-TR", { 
-                  dateStyle: "short", 
-                  timeStyle: "short" 
-                }) : ""}
-              </Text>
-              <TouchableOpacity 
-                style={[
-                  styles.joinButton,
-                  joinedEventIds.has(event.id) && styles.joinedButton
-                ]}
-                onPress={() => toggleJoin(event.id)}
-              >
-                <Text style={styles.joinButtonText}>
-                  {joinedEventIds.has(event.id) ? "Katıldın" : "Katıl"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-
-        {/* Clubs Section */}
-        {filteredClubs.length > 0 && (
-          <Text style={styles.sectionTitle}>Kulüpler</Text>
-        )}
-        {filteredClubs.map(club => (
-          <View key={club.id} style={styles.clubCard}>
-            <View style={styles.clubHeader}>
-              <Text style={styles.clubName}>{club.name}</Text>
-              <Text style={styles.clubLocation}>{club.category || 'Genel'}</Text>
-            </View>
-            <View style={styles.clubDetails}>
-              <Text style={styles.clubMeta}>{club.member_count || 0} üye</Text>
-              <Text style={styles.clubMeta}>
-                {events.filter(e => e.club_id === club.id).length} Etkinlik
-              </Text>
-            </View>
-            <Text style={styles.clubDescription}>{club.description}</Text>
-            <TouchableOpacity 
-              style={styles.clubButton}
-              onPress={() => navigation.navigate('ClubDetail', { clubId: club.id })}
-            >
-              <Text style={styles.clubButtonText}>Kulübe Git</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
-
-      const FilterModal = () => (
+  // Modal component moved outside of JSX tree to avoid syntax error
+  const FilterModal = () => (
     <Modal
       visible={filterModalVisible}
       transparent
@@ -641,6 +486,127 @@ export default function HomeScreen({ navigation }) {
       </View>
     </Modal>
   );
+
+  if (!fontsLoaded || !appIsReady) {
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Akış yüklenemedi: {error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={onRefresh}>
+          <Text style={styles.retryButtonText}>Tekrar Dene</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container} onLayout={onLayoutRootView}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchIconWrapper}>
+          <Ionicons name="search" size={14} color={colors.text} />
+        </View>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Etkinlik, kulüp, şehir ara..."
+          placeholderTextColor="#999"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <TouchableOpacity 
+          style={styles.filterIconWrapper}
+          onPress={() => setFilterModalVisible(true)}
+        >
+          <Ionicons name="filter" size={18} color={colors.text} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Category Buttons */}
+      <View style={styles.categoryContainer}>
+        {['Son Yüklenen', 'Yeni', 'Popüler', 'Hepsi'].map((cat) => (
+          <TouchableOpacity
+            key={cat}
+            style={[
+              styles.categoryButton,
+              activeCategory === cat && styles.activeCategory
+            ]}
+            onPress={() => setActiveCategory(cat)}
+          >
+            <Text style={[
+              styles.categoryText,
+              activeCategory === cat && styles.activeCategoryText
+            ]}>
+              {cat}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+          />
+        }
+      >
+        {/* Events Section */}
+        {sortedEvents.map(event => {
+          const raw = event.image_url;
+          const imageUri = raw
+            ? (raw.startsWith('http') || raw.startsWith('file:') || raw.startsWith('data:')
+                ? raw
+                : `${API_BASE_URL}/${raw.replace(/^\//, '')}`)
+            : 'https://placehold.co/400x200/23234B/fff?text=Etkinlik';
+          return (
+            <EventCard
+              key={event.id}
+              title={event.title}
+              location={`${event.city || event.location?.city || '-'}`}
+              date={event.date ? new Date(event.date).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' }) : ''}
+              imageUri={imageUri}
+              category={event.category}
+              participantsCount={event.participants?.length}
+              description={event.description}
+              saved={savedEventIds.has(event.id)}
+              joined={joinedEventIds.has(event.id)}
+              canJoin={String(event.creator_id) !== String(currentUserId)}
+              onBookmarkPress={() => toggleSave(event.id)}
+              onJoinPress={() => toggleJoin(event.id)}
+              onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+            />
+          );
+        })}
+
+        {/* Clubs Section */}
+        {filteredClubs.length > 0 && (
+          <Text style={styles.sectionTitle}>Kulüpler</Text>
+        )}
+        {filteredClubs.map(club => (
+          <ClubCard
+            key={club.id}
+            club={club}
+            eventsCount={events.filter(e => e.club_id === club.id).length}
+            onPress={() => navigation.navigate('ClubDetail', { clubId: club.id })}
+          />
+        ))}
+      </ScrollView>
+
+      <FilterModal />
 
       
     </View>

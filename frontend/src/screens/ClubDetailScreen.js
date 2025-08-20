@@ -20,6 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import colors from '../theme/colors';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -299,7 +300,7 @@ export default function ClubDetailScreen({ route, navigation }) {
           club.events.map(event => (
             <TouchableOpacity
               key={event.id}
-              onPress={() => navigation.navigate('EventDetailScreen', { eventId: event.id })}
+              onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
               style={styles.eventCardModern}
               activeOpacity={0.88}
             >
@@ -319,7 +320,7 @@ export default function ClubDetailScreen({ route, navigation }) {
                 </View>
                 <Text style={styles.eventDateModern}>{formatEventDate(event.date)}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#6a82fb" style={{ marginLeft: 8 }} />
+              <Ionicons name="chevron-forward" size={24} color={colors.primary} style={{ marginLeft: 8 }} />
             </TouchableOpacity>
           ))
         ) : (
@@ -384,17 +385,17 @@ export default function ClubDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  headerBox: { alignItems: 'center', paddingTop: 36, paddingBottom: 18, backgroundColor: '#fff', borderBottomLeftRadius: 32, borderBottomRightRadius: 32, marginBottom: 10, shadowColor: '#6a82fb', shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
-  clubIconBig: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#fcb045', alignItems: 'center', justifyContent: 'center', marginBottom: 10, shadowColor: '#fcb045', shadowOpacity: 0.13, shadowRadius: 8, elevation: 2 },
-  clubIconTextBig: { color: '#fff', fontWeight: 'bold', fontSize: 38 },
-  clubName: { fontSize: 28, fontWeight: 'bold', color: '#6a82fb', marginBottom: 6, textAlign: 'center' },
+  container: { flex: 1, backgroundColor: colors.background },
+  headerBox: { alignItems: 'center', paddingTop: 36, paddingBottom: 18, backgroundColor: colors.white, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, marginBottom: 10, shadowColor: colors.secondary, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
+  clubIconBig: { width: 90, height: 90, borderRadius: 45, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 10, shadowColor: colors.primary, shadowOpacity: 0.13, shadowRadius: 8, elevation: 2 },
+  clubIconTextBig: { color: colors.white, fontWeight: 'bold', fontSize: 38 },
+  clubName: { fontSize: 28, fontWeight: 'bold', color: colors.primary, marginBottom: 6, textAlign: 'center' },
   metaRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  metaBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#6a82fb', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 3, marginRight: 6 },
-  metaBadgeText: { color: '#fff', fontWeight: '600', fontSize: 13, marginLeft: 4 },
-  infoCard: { backgroundColor: '#fff', borderRadius: 18, padding: 20, marginHorizontal: 18, marginBottom: 18, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#457b9d', marginBottom: 8 },
-  sectionContent: { fontSize: 16, color: '#555', lineHeight: 24 },
+  metaBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.secondary, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 3, marginRight: 6 },
+  metaBadgeText: { color: colors.white, fontWeight: '600', fontSize: 13, marginLeft: 4 },
+  infoCard: { backgroundColor: colors.white, borderRadius: 18, padding: 20, marginHorizontal: 18, marginBottom: 18, shadowColor: colors.black, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: colors.secondary, marginBottom: 8 },
+  sectionContent: { fontSize: 16, color: colors.text, lineHeight: 24 },
   eventsSection: { marginHorizontal: 10, marginTop: 10 },
   eventCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, marginBottom: 12, paddingVertical: 14, paddingHorizontal: 14, shadowColor: '#6a82fb', shadowOpacity: 0.10, shadowRadius: 8, elevation: 2, borderWidth: 1, borderColor: '#fcb04522' },
   eventIconBox: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#fcb045', alignItems: 'center', justifyContent: 'center', marginRight: 14, shadowColor: '#fcb045', shadowOpacity: 0.13, shadowRadius: 5, elevation: 1 },
@@ -406,18 +407,18 @@ const styles = StyleSheet.create({
   emptyEventBox: { alignItems: 'center', padding: 30 },
   emptyEventText: { color: '#bdbdbd', fontSize: 16, marginTop: 10, fontWeight: '600' },
   // Modern etkinlik kartı stilleri ekle
-  eventCardModern: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 18, marginBottom: 14, paddingVertical: 16, paddingHorizontal: 16, shadowColor: '#6a82fb', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 8, elevation: 3, borderWidth: 1, borderColor: '#fcb04522' },
-  eventIconModern: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#fcb045', alignItems: 'center', justifyContent: 'center', marginRight: 14, shadowColor: '#fcb045', shadowOpacity: 0.13, shadowRadius: 5, elevation: 1 },
-  eventTitleModern: { fontSize: 18, fontWeight: 'bold', color: '#6a82fb', marginBottom: 2 },
+  eventCardModern: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.white, borderRadius: 18, marginBottom: 14, paddingVertical: 16, paddingHorizontal: 16, shadowColor: colors.secondary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 8, elevation: 3, borderWidth: 1, borderColor: '#ff850222' },
+  eventIconModern: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginRight: 14, shadowColor: colors.primary, shadowOpacity: 0.13, shadowRadius: 5, elevation: 1 },
+  eventTitleModern: { fontSize: 18, fontWeight: 'bold', color: colors.secondary, marginBottom: 2 },
   eventMetaModernRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2, gap: 8 },
-  eventBadgeModern: { backgroundColor: '#fcb04522', borderRadius: 7, paddingHorizontal: 8, paddingVertical: 2, marginRight: 6 },
-  eventBadgeTextModern: { color: '#fcb045', fontWeight: '700', fontSize: 13 },
-  eventDateModern: { color: '#888', fontSize: 14, fontWeight: '600', marginTop: 2 },
+  eventBadgeModern: { backgroundColor: '#ff850222', borderRadius: 7, paddingHorizontal: 8, paddingVertical: 2, marginRight: 6 },
+  eventBadgeTextModern: { color: colors.primary, fontWeight: '700', fontSize: 13 },
+  eventDateModern: { color: colors.gray, fontSize: 14, fontWeight: '600', marginTop: 2 },
   // Etkinlik görseli için stil ekle
   eventImageBox: { width: 48, height: 48, borderRadius: 12, overflow: 'hidden', backgroundColor: '#eee', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
   eventImage: { width: 48, height: 48, resizeMode: 'cover' },
   // Kulüp fotoğrafı için stil ekle
-  clubPhotoBig: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#eee', marginBottom: 10, resizeMode: 'cover', alignSelf: 'center' },
+  clubPhotoBig: { width: 90, height: 90, borderRadius: 45, backgroundColor: colors.lightGray, marginBottom: 10, resizeMode: 'cover', alignSelf: 'center' },
   // Katıl/Ayrıl butonu stilleri
   joinButton: { backgroundColor: '#6a82fb', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20, alignItems: 'center', shadowColor: '#6a82fb', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4 },
   joinButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
@@ -428,7 +429,7 @@ const styles = StyleSheet.create({
   leaveButtonDisabled: { backgroundColor: '#e0e0e0' },
   leaveButtonTextDisabled: { color: '#aaa' },
   // Üye sayısı kutusu için stil ekle
-  memberCountBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#6a82fb', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 5, marginTop: 10, alignSelf: 'center', shadowColor: '#6a82fb', shadowOpacity: 0.10, shadowRadius: 6, elevation: 2 },
+  memberCountBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 5, marginTop: 10, alignSelf: 'center', shadowColor: colors.primary, shadowOpacity: 0.10, shadowRadius: 6, elevation: 2 },
   memberCountText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
   // Katıl/Ayrıl butonları yan yana
   joinLeaveRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12, marginTop: 10, marginBottom: 18 },

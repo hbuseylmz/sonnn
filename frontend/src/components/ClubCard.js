@@ -1,32 +1,44 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../theme/colors';
 
-const ClubCard = ({ club, onPress }) => {
+const ClubCard = ({ club, onPress, eventsCount = 0 }) => {
+  const memberCount = club.member_count || club.memberCount || 0;
+  const category = club.category || 'Genel';
+  const cover = club.cover_image || club.image_url || null;
   return (
     <TouchableOpacity 
       style={styles.clubCard}
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <View style={styles.clubIconContainer}>
-        <Ionicons name="musical-notes" size={22} color={colors.white} />
-      </View>
-      <View style={styles.clubTextContainer}>
-        <Text style={[styles.clubTitle, {fontFamily: 'Nunito-Bold'}]}>{club.name}</Text>
-        <View style={styles.clubMeta}>
-          <View style={styles.tag}>
-            <Text style={styles.tagText}>{club.category}</Text>
-          </View>
-          <Text style={styles.clubMetaText}>{club.members}</Text>
-          <Text style={styles.clubMetaText}>{club.events}</Text>
+      {cover ? (
+        <Image source={{ uri: cover }} style={styles.coverImage} />
+      ) : (
+        <View style={styles.clubIconContainer}>
+          <Ionicons name="people" size={22} color={colors.white} />
         </View>
-        <Text style={styles.clubDescription}>{club.description}</Text>
+      )}
+      <View style={styles.clubTextContainer}>
+        <Text style={styles.clubTitle}>{club.name}</Text>
+        <View style={styles.metaRow}>
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryText}>{category}</Text>
+          </View>
+          <Text style={styles.metaText}>{memberCount} üye</Text>
+          <Text style={styles.metaText}>{eventsCount} etkinlik</Text>
+        </View>
+        {!!club.description && (
+          <Text style={styles.clubDescription} numberOfLines={2}>{club.description}</Text>
+        )}
       </View>
-      <TouchableOpacity style={styles.clubButton}>
-        <Text style={styles.clubButtonText}>Kulübe Git</Text>
-      </TouchableOpacity>
+      <View style={styles.rightCol}>
+        <Ionicons name="chevron-forward" size={20} color={colors.white} />
+        <TouchableOpacity style={styles.clubButton} onPress={onPress}>
+          <Text style={styles.clubButtonText}>Kulübe Git</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -36,15 +48,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.secondary,
-    borderRadius: 12,
+    borderRadius: 14,
     marginHorizontal: 20,
-    marginBottom: 15,
+    marginBottom: 12,
     padding: 12,
   },
+  coverImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    marginRight: 12,
+    backgroundColor: '#e9ecef',
+  },
   clubIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 56,
+    height: 56,
+    borderRadius: 12,
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -54,30 +73,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   clubTitle: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#FFFFFF',
     fontFamily: 'Nunito-Bold',
   },
-  clubMeta: {
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
   },
-  tag: {
+  categoryBadge: {
     backgroundColor: '#8FA0D8',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
     marginRight: 8,
   },
-  tagText: {
+  categoryText: {
     color: '#FFFFFF',
     fontSize: 10,
     fontFamily: 'Nunito-Bold',
   },
-  clubMetaText: {
+  metaText: {
     color: '#FFFFFF',
-    opacity: 0.85,
+    opacity: 0.9,
     fontSize: 12,
     marginRight: 8,
     fontFamily: 'Nunito-Regular',
@@ -89,11 +108,16 @@ const styles = StyleSheet.create({
     opacity: 0.95,
     fontFamily: 'Nunito-Regular',
   },
+  rightCol: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: 6,
+  },
   clubButton: {
     backgroundColor: colors.primary,
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
+    paddingVertical: 6,
+    borderRadius: 14,
   },
   clubButtonText: {
     color: '#FFFFFF',

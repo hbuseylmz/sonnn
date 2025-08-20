@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import colors from '../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { API_BASE_URL } from '../../auth';
@@ -97,7 +98,7 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#aee1f9', '#fdd9a0']} style={styles.gradient}>
+    <LinearGradient colors={[colors.secondary, colors.fourth]} style={styles.gradient}>
       <KeyboardAvoidingView 
         style={styles.container} 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -107,7 +108,7 @@ export default function RegisterScreen({ navigation }) {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <Ionicons name="person-add" size={40} color="#3a86ff" />
+            <Ionicons name="person-add" size={40} color={colors.primary} />
             <Text style={styles.title}>Yeni Hesap Oluştur</Text>
           </View>
 
@@ -205,9 +206,9 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
-    color: '#333',
+    color: colors.white,
     marginBottom: 30,
     fontFamily: 'System',
   },
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    backgroundColor: colors.white,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 14,
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 30,
-    backgroundColor: '#ffa75d',
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 50,
     borderRadius: 16,
@@ -240,8 +241,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
   },
   buttonText: {
-    color: 'white',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 16,
   },
+  header: { alignItems: 'center', marginBottom: 16 },
+  loginLink: { marginTop: 16 },
+  loginText: { color: colors.white },
+  loginLinkText: { color: colors.primary, fontWeight: '700' },
 });
